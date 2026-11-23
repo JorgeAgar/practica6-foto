@@ -158,8 +158,8 @@ Grupo 2. Prefijo de los recursos: `jorge-adolfo`. Proyecto de quien despliega: `
 
 | Nombre | Código | Usuario de GitHub |
 |---|---|---|
-| Jorge Reyes | | [JorgeAgar](https://github.com/JorgeAgar) |
-| Adolfo Alejandro Arenas | | |
+| Jorge Reyes | 1152355 | [JorgeAgar](https://github.com/JorgeAgar) |
+| Adolfo Alejandro Arenas | 1152370 | [a-cubica-r](https://github.com/a-cubica-r) |
 
 ## URL de la aplicación
 
