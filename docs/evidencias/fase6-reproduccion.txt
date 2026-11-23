@@ -1,0 +1,67 @@
+
+## Desde cero
+inicio: date: Mon, 23 Nov 2026 13:32:43 GMT
+$ terraform apply -target=google_artifact_registry_repository.registro
+Apply complete! Resources: 6 added, 0 changed, 0 destroyed.
+$ docker build/push de backend:v2 y frontend:v2
+us-central1-docker.pkg.dev/project-56eb9056-3ab4-4adb-b64/jorge-adolfo-imagenes/backend:v2
+us-central1-docker.pkg.dev/project-56eb9056-3ab4-4adb-b64/jorge-adolfo-imagenes/frontend:v2
+$ terraform apply
+google_storage_bucket.fotos: Creation complete after 3s
+google_service_account.frontend: Creation complete after 14s
+google_service_account.backend: Creation complete after 24s
+google_storage_bucket_iam_member.backend_objetos: Creation complete after 5s
+google_cloud_run_v2_service.backend: Creation complete after 12s
+google_cloud_run_v2_service_iam_member.backend_publico: Creation complete after 6s
+google_cloud_run_v2_service.frontend: Creation complete after 11s
+google_cloud_run_v2_service_iam_member.frontend_publico: Creation complete after 6s
+Apply complete! Resources: 8 added, 0 changed, 0 destroyed.
+bucket = "project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos"
+registro = "us-central1-docker.pkg.dev/project-56eb9056-3ab4-4adb-b64/jorge-adolfo-imagenes"
+url_backend = "https://jorge-adolfo-backend-sq3337hevq-uc.a.run.app"
+url_frontend = "https://jorge-adolfo-frontend-sq3337hevq-uc.a.run.app"
+fin: date: Mon, 23 Nov 2026 13:34:45 GMT
+
+## Prueba después de reproducir
+$ curl -s $B/fotos   # el bucket nuevo arranca vacío
+[]
+
+POST /fotos -> 20261123-133502-1fcd36 | etiquetas: Airport, Palm trees, Headquarters, Corporate headquarters | texto: 'Aeropuerto Internacional\nCamilo Daza\nCúcuta'
+$ gcloud storage ls -r gs://$B
+gs://project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos/:
+gs://project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos/miniaturas/:
+    113787  2026-11-23T13:35:27Z  gs://project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos/miniaturas/20261123-133502-1fcd36.jpg
+gs://project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos/originales/:
+   5876801  2026-11-23T13:35:27Z  gs://project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos/originales/20261123-133502-1fcd36.jpeg
+TOTAL: 2 objects, 5990588 bytes (5.71MiB)
+$ terraform plan
+No changes. Your infrastructure matches the configuration.
+# Reto 4: reproducir
+## Qué pasa sin force_destroy
+# Se cambió force_destroy a false, se aplicó y se intentó borrar el bucket (con sus dependientes):
+$ terraform destroy -target=google_storage_bucket.fotos
+Plan: 0 to add, 0 to change, 5 to destroy.
+google_cloud_run_v2_service_iam_member.backend_publico: Destruction complete after 6s
+google_cloud_run_v2_service_iam_member.frontend_publico: Destruction complete after 6s
+google_cloud_run_v2_service.frontend: Destruction complete after 11s
+google_cloud_run_v2_service.backend: Destruction complete after 11s
+Error: Error trying to delete bucket project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos without `force_destroy` set to true
+# El bucket siguió existiendo, con 18 objetos adentro, y en el estado de Terraform:
+$ terraform state list | grep bucket
+google_storage_bucket.fotos
+
+## Destroy completo (force_destroy otra vez en true)
+$ terraform apply -target=google_storage_bucket.fotos   # vuelve a poner force_destroy = true
+      ~ force_destroy               = false -> true
+Apply complete! Resources: 0 added, 1 changed, 0 destroyed.
+$ terraform destroy
+inicio: date: Mon, 23 Nov 2026 13:32:23 GMT
+Plan: 0 to add, 0 to change, 9 to destroy.
+google_storage_bucket.fotos: Destruction complete after 2s
+Destroy complete! Resources: 9 destroyed.
+fin: date: Mon, 23 Nov 2026 13:32:33 GMT
+
+# El nombre del bucket (project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos) se pudo volver a crear
+# 10 s después de borrarlo (destroy terminó a las 13:32:33, el bucket nuevo se creó hacia las 13:33),
+# sin esperar y sin cambiar el prefijo. Las fotos viejas no volvieron: el bucket nuevo arranca vacío.
+# 6 + 8 = 14 recursos, sin pasos en la consola. Al final se hizo otro terraform destroy.
