@@ -21,6 +21,10 @@ BUCKET = os.environ.get("BUCKET", "")
 LADO_MINIATURA = 1024
 MAX_ETIQUETAS = 8
 MAX_FOTOS_GALERIA = 24
+# Cloud Storage admite como máximo 8 KiB de metadatos propios por objeto,
+# sumando nombres y valores. El texto leído se corta a 4 KiB en UTF-8 para que
+# siempre quepa junto al autor y las ocho etiquetas, que no pasan de 1 KiB.
+MAX_BYTES_TEXTO = 4096
 
 app = Flask(__name__)
 # Cloud Run admite peticiones de hasta 32 MiB. Aquí se corta antes.
@@ -78,26 +82,42 @@ def hacer_miniatura(datos):
     return salida.getvalue()
 
 
-def etiquetar(datos_jpeg):
-    """Pide a Cloud Vision las etiquetas de la imagen.
+def recortar_utf8(texto, max_bytes):
+    """Corta el texto para que ocupe como mucho max_bytes en UTF-8, sin partir un carácter."""
+    datos = texto.encode("utf-8")
+    if len(datos) <= max_bytes:
+        return texto
+    return datos[: max_bytes - 3].decode("utf-8", errors="ignore") + "…"
 
-    Devuelve (etiquetas, None) si funcionó o (None, mensaje) si no. La foto se
-    guarda igual: que falle la IA no es razón para perder la imagen.
+
+def etiquetar(datos_jpeg):
+    """Pide a Cloud Vision las etiquetas y el texto de la imagen, en una sola petición.
+
+    Son dos funciones sobre la misma imagen, así que cuestan dos unidades.
+    Devuelve (etiquetas, texto, None) si funcionó o (None, None, mensaje) si no.
+    texto es "" cuando Vision no encontró texto. La foto se guarda igual: que
+    falle la IA no es razón para perder la imagen.
     """
     try:
-        respuesta = vision_cliente().label_detection(
-            image=vision.Image(content=datos_jpeg), max_results=MAX_ETIQUETAS
-        )
+        respuesta = vision_cliente().annotate_image({
+            "image": vision.Image(content=datos_jpeg),
+            "features": [
+                {"type_": vision.Feature.Type.LABEL_DETECTION, "max_results": MAX_ETIQUETAS},
+                {"type_": vision.Feature.Type.TEXT_DETECTION},
+            ],
+        })
         if respuesta.error.message:
             raise RuntimeError(respuesta.error.message)
         etiquetas = [
             {"nombre": e.description, "confianza": round(e.score, 3)}
             for e in respuesta.label_annotations
         ]
-        return etiquetas, None
+        # full_text_annotation trae todo el texto leído, en orden de lectura.
+        texto = recortar_utf8(respuesta.full_text_annotation.text.strip(), MAX_BYTES_TEXTO)
+        return etiquetas, texto, None
     except Exception as error:  # noqa: BLE001
         log.warning("Vision no respondió: %s", error)
-        return None, str(error)
+        return None, None, str(error)
 
 
 def como_json(blob):
@@ -108,6 +128,8 @@ def como_json(blob):
         "autor": meta.get("autor", ""),
         "creado": blob.time_created.isoformat() if blob.time_created else None,
         "etiquetas": json.loads(etiquetas) if etiquetas else None,
+        # null si la foto no tiene texto o es de antes de leer texto.
+        "texto": meta.get("texto") or None,
         "vision": meta.get("vision", "sin etiquetas"),
         "miniatura": f"/fotos/{blob.name.removeprefix('miniaturas/').removesuffix('.jpg')}/miniatura",
     }
@@ -143,7 +165,7 @@ def subir():
 
     # Vision trabaja sobre la miniatura: es más liviana y para etiquetas
     # basta con una imagen pequeña.
-    etiquetas, error_vision = etiquetar(miniatura)
+    etiquetas, texto, error_vision = etiquetar(miniatura)
 
     foto_id = f"{ahora():%Y%m%d-%H%M%S}-{uuid.uuid4().hex[:6]}"
     extension = (archivo.mimetype or "image/jpeg").split("/")[-1]
@@ -158,10 +180,14 @@ def subir():
         "autor": autor,
         "etiquetas": json.dumps(etiquetas, ensure_ascii=False) if etiquetas else "",
         "vision": "ok" if etiquetas is not None else f"error: {error_vision}",
+        # Vacío cuando no hay texto: así un listado no tiene que distinguir
+        # entre "no leyó nada" y "no se le preguntó".
+        "texto": texto or "",
     }
     blob.upload_from_string(miniatura, content_type="image/jpeg")
     blob.reload()
-    log.info("Foto %s guardada por %s, %s etiquetas", foto_id, autor, len(etiquetas or []))
+    log.info("Foto %s guardada por %s, %s etiquetas, %s caracteres de texto",
+             foto_id, autor, len(etiquetas or []), len(texto or ""))
     return jsonify(como_json(blob)), 201
 
 

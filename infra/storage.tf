@@ -14,6 +14,18 @@ resource "google_storage_bucket" "fotos" {
   # Sin esto, destroy falla si el bucket tiene fotos adentro.
   force_destroy = true
 
+  # Limpieza automática: cada objeto se borra cuando cumple 7 días desde que
+  # se subió. Cloud Storage revisa las reglas una vez al día, en segundo plano,
+  # y la acción puede tardar hasta 24 horas en aplicarse después de cumplirse.
+  lifecycle_rule {
+    condition {
+      age = 7
+    }
+    action {
+      type = "Delete"
+    }
+  }
+
   depends_on = [google_project_service.apis]
 }
 

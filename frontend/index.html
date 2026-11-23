@@ -89,6 +89,10 @@
   .etiquetas li .barra-conf { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: var(--rojo-suave); overflow: hidden; }
   .etiquetas li .barra-conf i { display: block; height: 100%; background: var(--rojo); }
   .etiquetas li.baja .barra-conf i { background: var(--ambar); }
+  .texto-leido { margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--fondo); border: 1px solid var(--borde); font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 180px; overflow: auto; }
+  .texto-leido::before { content: "Texto leído"; display: block; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--suave); margin-bottom: 4px; }
+  .galeria .pie q { margin-top: 4px; font-style: italic; color: var(--texto); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; white-space: pre-line; }
+  .galeria .pie q::before, .galeria .pie q::after { content: none; }
   .sin-etiquetas { margin: 0; padding: 10px 12px; border-radius: 10px; background: #fff4e0; color: var(--ambar); font-size: 14px; }
 
   .galeria { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
@@ -127,6 +131,7 @@
       <p class="quien" id="res-quien"></p>
       <ul id="res-etiquetas" class="etiquetas"></ul>
       <p id="res-sin" class="sin-etiquetas" hidden></p>
+      <p id="res-texto" class="texto-leido" hidden></p>
     </div>
   </section>
 
@@ -207,6 +212,9 @@
       sin.textContent = "La foto se guardó, pero no llegaron etiquetas. Mira los registros del backend.";
       sin.hidden = false;
     }
+    const texto = $("#res-texto");
+    texto.textContent = foto.texto || "";
+    texto.hidden = !foto.texto;
     $("#resultado").hidden = false;
   }
 
@@ -233,6 +241,12 @@
         detalle.className = "ambar";
       }
       pie.append(autor, detalle);
+      if (f.texto) {
+        const texto = document.createElement("q");
+        texto.textContent = f.texto;
+        texto.title = f.texto;
+        pie.append(texto);
+      }
       li.append(img, pie);
       galeria.append(li);
     }

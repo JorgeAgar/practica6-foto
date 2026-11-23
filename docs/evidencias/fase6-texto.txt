@@ -1,0 +1,61 @@
+# Reto 1: leer el texto (backend:v2 y frontend:v2)
+# Foto con texto, subida desde la página. Respuesta de POST /fotos:
+{
+  "autor": "Jorge",
+  "creado": "2026-11-23T13:25:09.437000+00:00",
+  "etiquetas": [
+    {
+      "confianza": 0.556,
+      "nombre": "Airport"
+    },
+    {
+      "confianza": 0.538,
+      "nombre": "Palm trees"
+    },
+    {
+      "confianza": 0.535,
+      "nombre": "Headquarters"
+    },
+    {
+      "confianza": 0.526,
+      "nombre": "Corporate headquarters"
+    }
+  ],
+  "id": "20261123-132509-d4e7a8",
+  "miniatura": "/fotos/20261123-132509-d4e7a8/miniatura",
+  "texto": "Aeropuerto Internacional\nCamilo Daza\nCúcuta",
+  "vision": "ok"
+}
+
+# Foto sin texto (la taza): "texto" llega null
+{"id": "20261123-132516-b244e8", "texto": null, "vision": "ok"}
+
+$ gcloud storage objects describe gs://$B/miniaturas/20261123-132509-d4e7a8.jpg --format="yaml(name,size,custom_fields)"
+custom_fields:
+  autor: Jorge
+  etiquetas: '[{"nombre": "Airport", "confianza": 0.556}, {"nombre": "Palm trees",
+    "confianza": 0.538}, {"nombre": "Headquarters", "confianza": 0.535}, {"nombre":
+    "Corporate headquarters", "confianza": 0.526}]'
+  texto: |-
+    Aeropuerto Internacional
+    Camilo Daza
+    Cúcuta
+  vision: ok
+name: miniaturas/20261123-132509-d4e7a8.jpg
+size: 113787
+
+$ gcloud storage objects describe gs://$B/miniaturas/20261123-132516-b244e8.jpg --format="yaml(name,custom_fields.texto,custom_fields.vision)"   # sin texto
+custom_fields:
+  texto: ''
+  vision: ok
+name: miniaturas/20261123-132516-b244e8.jpg
+
+# Registro del backend:
+2026-11-23T13:25:16.801831Z	INFO:backend:Foto 20261123-132516-b244e8 guardada por Adolfo, 8 etiquetas, 0 caracteres de texto
+2026-11-23T13:25:09.472900Z	INFO:backend:Foto 20261123-132509-d4e7a8 guardada por Jorge, 4 etiquetas, 43 caracteres de texto
+
+# Prueba local de recortar_utf8(texto, 4096), el límite que dejamos para el texto en los metadatos:
+4 chars -> 4 chars, 4 bytes, termina en 'la'
+3000 chars -> 2047 chars, 4095 bytes, termina en 'ñ…'
+5000 chars -> 4094 chars, 4096 bytes, termina en 'a…'
+2000 chars -> 1365 chars, 4095 bytes, termina en '€…'

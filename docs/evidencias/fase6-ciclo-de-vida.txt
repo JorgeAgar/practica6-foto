@@ -1,0 +1,54 @@
+# Reto 2: limpieza automática
+$ gcloud storage buckets describe gs://$B --format='yaml(name,lifecycle_config)'
+lifecycle_config:
+  rule:
+  - action:
+      type: Delete
+    condition:
+      age: 7
+name: project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos
+
+$ curl -s -H "Authorization: Bearer $(gcloud auth print-access-token)" https://storage.googleapis.com/storage/v1/b/$B?fields=name,lifecycle
+{
+  "name": "project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos",
+  "lifecycle": {
+    "rule": [
+      {
+        "action": {
+          "type": "Delete"
+        },
+        "condition": {
+          "age": 7
+        }
+      }
+    ]
+  }
+}
+
+
+$ terraform state show google_storage_bucket.fotos   (extracto)
+    lifecycle_rule {
+        action {
+            storage_class = null
+            type          = "Delete"
+        }
+        condition {
+            age                                     = 7
+            created_before                          = null
+            custom_time_before                      = null
+            days_since_custom_time                  = 0
+            days_since_noncurrent_time              = 0
+            matches_prefix                          = []
+            matches_storage_class                   = []
+            matches_suffix                          = []
+            noncurrent_time_before                  = null
+            num_newer_versions                      = 0
+            send_age_if_zero                        = false
+            send_days_since_custom_time_if_zero     = false
+            send_days_since_noncurrent_time_if_zero = false
+            send_num_newer_versions_if_zero         = false
+            size_above_bytes                        = 0
+            size_below_bytes                        = 0
+            with_state                              = null
+        }
+    }
