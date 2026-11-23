@@ -1,0 +1,58 @@
+# Fase 4: todas las fotos subidas desde la página (frontend), con las etiquetas que devolvió Vision
+
+## 1-taza: Taza de té, bien iluminada (Commons: Herbal tea in white mug.jpg, CC BY-SA 4.0)
+   id 20261123-131532-67ca93, subida por Jorge
+   0.965  Tableware
+   0.940  Serveware
+   0.917  Liquid
+   0.852  Food
+   0.847  Cup
+   0.768  Porcelain
+   0.767  Tieguanyin
+   0.766  Tea
+
+## 2-arepa: Arepas de huevo, típico de la región (Commons: Arepa de huevo.jpg, Jdvillalobos, CC BY 3.0)
+   id 20261123-131435-4ee1d6, subida por Adolfo
+   0.994  Food
+   0.939  Tableware
+   0.886  Ingredient
+   0.856  Fried food
+   0.851  Finger food
+   0.824  Fast food
+   0.822  Cooking banana
+   0.806  Recipe
+
+## 3-dibujo-principito: Dibujo n.º 1 de El principito: la boa que se comió un elefante, vista por fuera (el 'sombrero')
+   id 20261123-131537-24b56e, subida por Adolfo
+   0.910  Brown
+   0.687  Natural material
+
+## 4-letrero-aeropuerto: Letrero del Aeropuerto Internacional Camilo Daza, Cúcuta (Commons, CC BY-SA 4.0)
+   id 20261123-131548-cc0230, subida por Jorge
+   0.556  Airport
+   0.538  Palm trees
+   0.535  Headquarters
+   0.526  Corporate headquarters
+
+## 5-taza-movida: La misma taza, movida y oscura (desenfoque de movimiento suave y -40 % de brillo, hecho con ImageMagick)
+   id 20261123-131554-11112b, subida por Adolfo
+   0.945  Tableware
+   0.920  Liquid
+   0.912  Serveware
+   0.872  Tea
+   0.854  Cup
+   0.828  Darjeeling tea
+   0.821  Tieguanyin
+   0.787  Green tea
+
+## 6-taza-muy-movida: La misma taza, muy movida y muy oscura (desenfoque fuerte y -60 % de brillo)
+   id 20261123-132207-b7ca08, subida por Jorge
+   0.956  Tableware
+   0.926  Serveware
+   0.921  Liquid
+   0.909  Cup
+   0.786  Tea
+   0.773  Teacup
+   0.747  Cup
+   0.688  Darjeeling tea
+
