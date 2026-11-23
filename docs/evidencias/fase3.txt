@@ -1,0 +1,54 @@
+# Respuesta de POST /fotos (subida desde la página):
+{
+  "autor": "Adolfo",
+  "creado": "2026-11-23T13:14:35.781000+00:00",
+  "etiquetas": [
+    {
+      "confianza": 0.994,
+      "nombre": "Food"
+    },
+    {
+      "confianza": 0.939,
+      "nombre": "Tableware"
+    },
+    {
+      "confianza": 0.886,
+      "nombre": "Ingredient"
+    },
+    {
+      "confianza": 0.856,
+      "nombre": "Fried food"
+    },
+    {
+      "confianza": 0.851,
+      "nombre": "Finger food"
+    },
+    {
+      "confianza": 0.824,
+      "nombre": "Fast food"
+    },
+    {
+      "confianza": 0.822,
+      "nombre": "Cooking banana"
+    },
+    {
+      "confianza": 0.806,
+      "nombre": "Recipe"
+    }
+  ],
+  "id": "20261123-131435-4ee1d6",
+  "miniatura": "/fotos/20261123-131435-4ee1d6/miniatura",
+  "vision": "ok"
+}
+
+# Registro del backend:
+2026-11-23T13:14:35.821450Z	INFO:backend:Foto 20261123-131435-4ee1d6 guardada por Adolfo, 8 etiquetas
+2026-11-23T13:12:48.372287Z	INFO:backend:Foto 20261123-131248-48b452 guardada por Jorge, 0 etiquetas
+
+$ gcloud services list --enabled --filter="config.name:vision.googleapis.com"
+NAME                   TITLE
+vision.googleapis.com  Cloud Vision API
+
+# La foto de la fase 2 sigue sin etiquetas:
+20261123-131435-4ee1d6 Adolfo ok 8
+20261123-131248-48b452 Jorge error: 403 Cloud Vision API has not been used in project 989 None
