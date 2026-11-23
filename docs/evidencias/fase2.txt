@@ -1,0 +1,41 @@
+$ gcloud storage ls -l -r gs://project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos
+gs://project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos/:
+
+gs://project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos/miniaturas/:
+     65741  2026-11-23T13:12:48Z  gs://project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos/miniaturas/20261123-131248-48b452.jpg
+
+gs://project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos/originales/:
+   2855247  2026-11-23T13:12:48Z  gs://project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos/originales/20261123-131248-48b452.jpeg
+TOTAL: 2 objects, 2920988 bytes (2.79MiB)
+
+$ gcloud storage buckets describe gs://project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos --format='yaml(name,location,default_storage_class,uniform_bucket_level_access,public_access_prevention)'
+default_storage_class: STANDARD
+location: US-CENTRAL1
+name: project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos
+public_access_prevention: enforced
+uniform_bucket_level_access: true
+
+$ gcloud storage buckets get-iam-policy gs://project-56eb9056-3ab4-4adb-b64-jorge-adolfo-fotos
+bindings:
+- members:
+  - projectEditor:project-56eb9056-3ab4-4adb-b64
+  - projectOwner:project-56eb9056-3ab4-4adb-b64
+  role: roles/storage.legacyBucketOwner
+- members:
+  - projectViewer:project-56eb9056-3ab4-4adb-b64
+  role: roles/storage.legacyBucketReader
+- members:
+  - projectEditor:project-56eb9056-3ab4-4adb-b64
+  - projectOwner:project-56eb9056-3ab4-4adb-b64
+  role: roles/storage.legacyObjectOwner
+- members:
+  - projectViewer:project-56eb9056-3ab4-4adb-b64
+  role: roles/storage.legacyObjectReader
+- members:
+  - serviceAccount:jorge-adolfo-backend@project-56eb9056-3ab4-4adb-b64.iam.gserviceaccount.com
+  role: roles/storage.objectUser
+etag: CAI=
+
+# Registros del backend:
+2026-11-23T13:12:48.372287Z	INFO:backend:Foto 20261123-131248-48b452 guardada por Jorge, 0 etiquetas
+2026-11-23T13:12:48.063498Z	WARNING:backend:Vision no respondió: 403 Cloud Vision API has not been used in project 989714552015 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/vision.googleapis.com/overview?project=989714552015 then retry. If you enabled this API recently, wait a fe
