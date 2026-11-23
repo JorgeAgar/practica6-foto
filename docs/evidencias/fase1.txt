@@ -1,0 +1,26 @@
+$ gcloud config list
+[core]
+disable_usage_reporting = True
+project = project-56eb9056-3ab4-4adb-b64
+
+Your active configuration is: [default]
+[environment: untagged] Read more to tag: g.co/cloud/project-env-tag.
+
+$ gcloud artifacts docker images list us-central1-docker.pkg.dev/project-56eb9056-3ab4-4adb-b64/jorge-adolfo-imagenes --include-tags
+
+IMAGE     TAGS  CREATE_TIME
+backend   v1    2026-11-23 13:05
+backend         2026-11-23 13:05
+backend         2026-11-23 13:05
+frontend  v1    2026-11-23 13:05
+frontend        2026-11-23 13:05
+frontend        2026-11-23 13:05
+
+$ curl -i $B/fotos
+HTTP/2 503 
+{"error":"El backend no tiene un bucket configurado"}
+
+# Registros del backend:
+2026-11-23T13:11:33.041613Z	WARNING:backend:BUCKET está vacía: no hay dónde guardar las fotos
+2026-11-23T13:11:30.001602Z	WARNING:backend:BUCKET está vacía: no hay dónde guardar las fotos
+2026-11-23T13:11:10.968764Z	WARNING:backend:BUCKET está vacía: no hay dónde guardar las fotos
